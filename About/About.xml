@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ModMetaData>
+    <name>Shields CE Compability by Frontier Developments</name>
+    <targetVersion>0.17.1546</targetVersion>
+    <author>JohnnyNova and Jetpack Maniac</author>
+    <url>https://github.com/jetpack-maniac/ED-Shields</url>
+    <description>Version: 1.0
+        Adds compatibility for Combat Extended.
+    </description>
+</ModMetaData>
