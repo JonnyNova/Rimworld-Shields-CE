@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Patch>
+    <!-- Portable Shield -->
+    <Operation Class="PatchOperationAdd">
+        <xpath>*/ThingDef[defName="MinifiedShieldGeneratorPortable"]/statBases</xpath>
+        <value>
+            <Bulk>18</Bulk>
+        </value>
+    </Operation>
+</Patch>
