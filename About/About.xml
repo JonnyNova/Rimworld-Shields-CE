@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ModMetaData>
-    <name>[A17] Shields CE Compability by Frontier Developments</name>
-    <targetVersion>0.17.1546</targetVersion>
+    <name>[B18] Shields CE Compability by Frontier Developments</name>
+    <targetVersion>0.18.1722</targetVersion>
     <author>JohnnyNova and Jetpack Maniac</author>
     <url>https://github.com/JonnyNova/Rimworld-Shields-CE</url>
     <description>Version: 1.0
 Adds compatibility for Combat Extended.
-Requires Frontier Developments Shields: http://steamcommunity.com/sharedfiles/filedetails/?id=1210471200
+Requires Frontier Developments Shields: http://steamcommunity.com/sharedfiles/filedetails/?id=1210535987
 Requires Combat Extended: http://steamcommunity.com/sharedfiles/filedetails/?id=960196012
     </description>
 </ModMetaData>
