@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using CombatExtended;
+using FrontierDevelopments.General;
 using Harmony;
 using UnityEngine;
 using Verse;
@@ -16,6 +17,7 @@ namespace FrontierDevelopments.Shields.Handlers
         private static readonly PropertyInfo FTicksProperty = typeof(ProjectileCE).GetProperty("fTicks", BindingFlags.Instance | BindingFlags.NonPublic);
         private static readonly PropertyInfo StartingTicksToImpactProperty = typeof(ProjectileCE).GetProperty("StartingTicksToImpact", BindingFlags.Instance | BindingFlags.NonPublic);
         private static readonly FieldInfo LauncherField = typeof(ProjectileCE).GetField("launcher", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static readonly MethodInfo GetHeightAtTicksMethod = typeof(ProjectileCE).GetMethod("GetHeightAtTicks", BindingFlags.NonPublic | BindingFlags.Instance);
 
         static ProjectCEHandler()
         {
@@ -42,7 +44,12 @@ namespace FrontierDevelopments.Shields.Handlers
             if (LauncherField == null)
             {
                 Enabled = false;
-                Log.Error("Shield ProjectileCE handler reflection error on property ProjectileCE.launcher");
+                Log.Error("FrontierDevelopments Shields :: ProjectileCE handler reflection error on property ProjectileCE.launcher");
+            }
+            if (GetHeightAtTicksMethod == null)
+            {
+                Enabled = false;
+                Log.Error("FrontierDevelopments Shields :: ProjectileCE handler reflection error on method ProjectileCE.GetHeightAtTicks");
             }
 
             Log.Message("FrontierDevelopments Shields :: ProjectileCE handler " + (Enabled ? "enabled" : "disabled due to errors"));
@@ -62,7 +69,9 @@ namespace FrontierDevelopments.Shields.Handlers
             
                 var origin = (Vector2)OriginField.GetValue(projectile);
                 var destination = (Vector2) DestinationProperty.GetValue(projectile, null);
-                var position = Vector2.Lerp(origin, destination, flightTicks / startingTicksToImpact);
+                var position3 = Common.ToVector3(Vector2.Lerp(origin, destination, flightTicks / startingTicksToImpact), projectile.Height);
+                var origin3 = Common.ToVector3(origin);
+                var destination3 = Common.ToVector3(destination);
                 
                 try
                 {
@@ -71,9 +80,9 @@ namespace FrontierDevelopments.Shields.Handlers
                         if (projectile.def.projectile.flyOverhead)
                         {
                             // the shield has blocked the projectile - invert to get if harmony should allow the original block
-                            return !Mod.ShieldManager.ImpactShield(projectile.Map, position, origin, destination, (shield, vector3) =>
+                            return !Mod.ShieldManager.ImpactShield(projectile.Map, position3, origin3, destination3, (shield, vector3) =>
                             {
-                                if (shield.Damage(projectile.def.projectile.damageAmountBase, position))
+                                if (shield.Damage(projectile.def.projectile.damageAmountBase, position3))
                                 {
                                     projectile.Destroy();
                                     return true;
@@ -84,11 +93,13 @@ namespace FrontierDevelopments.Shields.Handlers
                     }
                     else
                     {
-                        var nextPosition = Vector2.Lerp(origin, destination, (flightTicks + 1) / startingTicksToImpact);
-                        var ray = new Ray2D(position, nextPosition - position);
+                        var nextTick = flightTicks + 1;
+                        var nextHeight = (float)GetHeightAtTicksMethod.Invoke(projectile, new object[] { (int)nextTick });
+                        var nextPosition = Common.ToVector3(Vector2.Lerp(origin, destination, nextTick / startingTicksToImpact), nextHeight);
+                        var ray = new Ray(position3, nextPosition - position3);
                         
                         // the shield has blocked the projectile - invert to get if harmony should allow the original block
-                        return !Mod.ShieldManager.ImpactShield(projectile.Map, origin, ray, 1, (shield, point) =>
+                        return !Mod.ShieldManager.ImpactShield(projectile.Map, origin3, ray, 1, (shield, point) =>
                         {
                             if (shield.Damage(projectile.def.projectile.damageAmountBase, point))
                             {
